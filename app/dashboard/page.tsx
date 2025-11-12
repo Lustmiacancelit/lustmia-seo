@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+// or: export const fetchCache = 'force-no-store';
+
 // app/dashboard/page.tsx
 'use client';
 
