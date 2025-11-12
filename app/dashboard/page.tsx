@@ -1,8 +1,8 @@
-export const dynamic = 'force-dynamic';
-// or: export const fetchCache = 'force-no-store';
-
 // app/dashboard/page.tsx
 'use client';
+
+export const dynamic = 'force-dynamic';
+// or: export const fetchCache = 'force-no-store';
 
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -11,8 +11,6 @@ function DashboardInner() {
   const sp = useSearchParams();
   const sessionId = sp.get('session_id');
 
-  // TODO: put your existing dashboard JSX/UI below.
-  // If you need to fetch session details client-side, do it here.
   return (
     <div className="app-root">
       <main className="app-main">
@@ -22,11 +20,12 @@ function DashboardInner() {
           </header>
 
           {sessionId ? (
-            <div className="app-status">✅ Checkout complete. Session: {sessionId}</div>
+            <div className="app-status">
+              ✅ Checkout complete. Session: {sessionId}
+            </div>
           ) : (
             <div className="app-status">Welcome back to Lustmia SEO.</div>
           )}
-
           {/* ...rest of your dashboard content... */}
         </section>
       </main>
