@@ -9,9 +9,8 @@ if (!STRIPE_SECRET_KEY) {
   throw new Error("STRIPE_SECRET_KEY is not set in environment.");
 }
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: "2024-06-20",
-});
+// Let Stripe use the default API version; avoids TS type mismatch
+const stripe = new Stripe(STRIPE_SECRET_KEY as string);
 
 type Plan = "starter" | "pro";
 
@@ -34,8 +33,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const origin =
-      req.headers.get("origin") ?? "https://seo.lustmia.com";
+    const origin = req.headers.get("origin") ?? "https://seo.lustmia.com";
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
