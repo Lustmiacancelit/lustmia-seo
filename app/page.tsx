@@ -83,9 +83,10 @@ export default function Home() {
               <Image
                 src="/lustmia-logo.png"
                 alt="Lustmia logo"
-                width={120}
-                height={32}
+                width={160}
+                height={40}
                 priority
+                className="app-logo"
               />
               <div className="app-title-group">
                 <div className="app-title">{SITE_NAME}</div>

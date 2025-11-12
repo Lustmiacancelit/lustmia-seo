@@ -54,6 +54,15 @@ body {
   gap: 12px;
 }
 
+/* 👇 New: logo styling so it doesn't look horrible :) */
+.app-logo {
+  height: 40px;          /* controls visual size */
+  width: auto;           /* keeps aspect ratio */
+  object-fit: contain;   /* no stretching */
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.15));
+}
+
 .app-brand {
   display: flex;
   align-items: center;
@@ -283,5 +292,10 @@ body {
 
   .app-title {
     font-size: 1.1rem;
+  }
+
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
