@@ -1,73 +1,95 @@
 "use client";
-import { useState } from "react";
 
-export default function Dashboard() {
-  const [url, setUrl] = useState("");
-  const [result, setResult] = useState<string | null>(null);
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-  const handleAnalyze = async () => {
-    setResult("Analyzing...");
-    const response = await fetch("/api/analyze?url=" + encodeURIComponent(url));
-    const data = await response.json();
-    setResult(data.message);
-  };
+export default function DashboardPage() {
+  const searchParams = useSearchParams();
+  const hasSession = !!searchParams.get("session_id");
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#0f0f0f",
-        color: "#fff",
-        fontFamily: "system-ui, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        padding: "2rem",
-      }}
-    >
-      <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1rem" }}>
-        SEO Dashboard
-      </h1>
-      <p style={{ maxWidth: "600px", marginBottom: "2rem", color: "#bbb" }}>
-        Enter a website URL to check its SEO health.
-      </p>
+    <div className="app-root">
+      <main className="app-main">
+        <section className="app-shell" style={{ maxWidth: 900 }}>
+          <header className="app-header">
+            <div className="app-brand">
+              <div className="app-title-group">
+                <div className="app-title">Lustmia SEO</div>
+                <div className="app-subtitle">
+                  Private beta dashboard.
+                </div>
+              </div>
+            </div>
+            <Link href="/" className="app-badge">
+              Open analyzer
+            </Link>
+          </header>
 
-      <input
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="https://www.example.com"
-        style={{
-          width: "80%",
-          maxWidth: "400px",
-          padding: "0.75rem",
-          borderRadius: "6px",
-          border: "1px solid #333",
-          marginBottom: "1rem",
-          textAlign: "center",
-        }}
-      />
-      <button
-        onClick={handleAnalyze}
-        style={{
-          background: "#fff",
-          color: "#000",
-          border: "none",
-          padding: "0.75rem 1.5rem",
-          borderRadius: "6px",
-          fontWeight: "bold",
-          cursor: "pointer",
-        }}
-      >
-        Analyze
-      </button>
+          <div style={{ marginTop: 18 }}>
+            <h1
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: 700,
+                marginBottom: 8,
+              }}
+            >
+              {hasSession ? "You’re in. Welcome ✨" : "Lustmia SEO dashboard"}
+            </h1>
 
-      {result && (
-        <div style={{ marginTop: "2rem", color: "#0f0" }}>
-          <p>{result}</p>
-        </div>
-      )}
-    </main>
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "#9ca3af",
+                maxWidth: 600,
+                marginBottom: 14,
+              }}
+            >
+              {hasSession
+                ? "Your Stripe checkout just completed. Your subscription will appear in your Stripe dashboard, and you can already start using Lustmia SEO."
+                : "If you already subscribed, you can go straight to the analyzer and start scanning your URLs."}
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                marginBottom: 12,
+              }}
+            >
+              <Link href="/" className="app-button" style={{ width: "fit-content" }}>
+                Start analyzing pages
+              </Link>
+              <Link
+                href="/pricing"
+                style={{
+                  fontSize: "0.8rem",
+                  color: "#a855f7",
+                  textDecoration: "underline",
+                }}
+              >
+                View or change your plan
+              </Link>
+            </div>
+
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "#6b7280",
+                maxWidth: 620,
+              }}
+            >
+              Over time this dashboard will grow to include: crawl history, site
+              scores over time, Google Search Console & GA4 snapshots, and
+              Telegram alerts configuration.
+            </p>
+          </div>
+
+          <footer className="app-footer">
+            © {new Date().getFullYear()} Lustmia SEO · Balance is Beauty.
+          </footer>
+        </section>
+      </main>
+    </div>
   );
 }
