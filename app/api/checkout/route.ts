@@ -1,52 +1,60 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
+const STARTER_PRICE_ID = process.env.STRIPE_STARTER_PRICE_ID!;
+const PRO_PRICE_ID = process.env.STRIPE_PRO_PRICE_ID!;
+
 const stripe = new Stripe(STRIPE_SECRET_KEY);
 
-export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const sessionId = searchParams.get("session_id");
+type Plan = "starter" | "pro";
+function priceIdFor(plan?: Plan) {
+  if (plan === "starter") return STARTER_PRICE_ID;
+  if (plan === "pro") return PRO_PRICE_ID;
+  return null;
+}
 
-    if (!sessionId) {
-      return NextResponse.json({ ok: false, error: "Missing session_id" }, { status: 400 });
+export async function POST(req: Request) {
+  try {
+    const body = await req.json().catch(() => null);
+    const plan = (body?.plan as Plan | undefined) ?? undefined;
+    const priceId = priceIdFor(plan);
+
+    if (!priceId) {
+      return NextResponse.json({ error: "Invalid or missing plan." }, { status: 400 });
     }
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["subscription", "customer", "line_items.data.price.product"],
+    const origin = req.headers.get("origin") ?? "https://seo.lustmia.com";
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer_creation: "always",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/pricing?canceled=true`,
+      billing_address_collection: "auto",
+      allow_promotion_codes: true,
     });
 
-    const line = session?.line_items?.data?.[0];
-    const price = line?.price || null;
-    const product = (price?.product as Stripe.Product) || null;
+    if (!session.url) {
+      return NextResponse.json({ error: "Failed to create session URL." }, { status: 500 });
+    }
 
-    const planName =
-      (product?.name as string | undefined) ||
-      (price?.nickname as string | undefined) ||
-      "Subscription";
-
-    const amount = typeof price?.unit_amount === "number" ? price.unit_amount : null;
-    const currency = price?.currency?.toUpperCase() || "USD";
-
-    return NextResponse.json({
-      ok: true,
-      session: {
-        id: session.id,
-        status: session.status,
-        payment_status: session.payment_status,
-        customer_email: session.customer_details?.email ?? null,
-        planName,
-        amount,
-        currency,
-        created: session.created,
-      },
-    });
-  } catch (err: any) {
-    console.error("GET /api/session error:", err?.message || err);
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    console.error("POST /api/checkout error:", err);
     return NextResponse.json(
-      { ok: false, error: "Unable to fetch session details." },
+      { error: "Unable to start checkout. Please try again." },
       { status: 500 }
     );
   }
+}
+
+// Simple GET probe so hitting /api/checkout in a browser doesn't error
+export async function GET() {
+  return NextResponse.json({ ok: true, info: "checkout endpoint ready", method: "GET" });
 }
