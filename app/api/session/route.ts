@@ -2,16 +2,17 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-export const runtime = "nodejs";            // required to use Node APIs (Stripe SDK)
-export const dynamic = "force-dynamic";     // disable static rendering
-export const revalidate = 0;                // no ISR cache
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY ?? "";
 if (!STRIPE_SECRET_KEY) {
   throw new Error("Missing STRIPE_SECRET_KEY");
 }
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
+// Note: no apiVersion here (prevents TS literal-type mismatch)
+const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 export async function GET(req: Request) {
   try {
@@ -29,7 +30,6 @@ export async function GET(req: Request) {
       expand: ["subscription", "customer", "line_items.data.price.product"],
     });
 
-    // Pull first line item (the subscription price)
     const line = session?.line_items?.data?.[0];
     const price = line?.price ?? null;
     const product =
@@ -55,8 +55,8 @@ export async function GET(req: Request) {
         payment_status: session.payment_status,
         customer_email: session.customer_details?.email ?? null,
         planName,
-        amount,          // in cents
-        currency,        // e.g. USD
+        amount,      // cents
+        currency,    // e.g. USD
         created: session.created,
       },
     });
