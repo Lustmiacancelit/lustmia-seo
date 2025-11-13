@@ -10,6 +10,14 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY ?? "";
 const STARTER_PRICE_ID = process.env.STRIPE_STARTER_PRICE_ID ?? "";
 const PRO_PRICE_ID = process.env.STRIPE_PRO_PRICE_ID ?? "";
 
+// ✅ Debugging environment variables (remove after test)
+console.log("🔑 ENV CHECK:", {
+  hasSecret: !!process.env.STRIPE_SECRET_KEY,
+  hasStarter: !!process.env.STRIPE_STARTER_PRICE_ID,
+  hasPro: !!process.env.STRIPE_PRO_PRICE_ID,
+});
+
+
 if (!STRIPE_SECRET_KEY) throw new Error("Missing STRIPE_SECRET_KEY");
 if (!STARTER_PRICE_ID) console.warn("Missing STRIPE_STARTER_PRICE_ID");
 if (!PRO_PRICE_ID) console.warn("Missing STRIPE_PRO_PRICE_ID");
