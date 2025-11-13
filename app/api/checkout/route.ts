@@ -34,6 +34,9 @@ const priceFor: Record<Plan, string> = {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
+    // 🧪 Debug before creating session
+console.log("🧪 Checkout request plan:", plan, "→ priceId:", priceFor[plan]);
+
     const plan = body?.plan as Plan | undefined;
     if (!plan || !priceFor[plan]) {
       return NextResponse.json({ error: "Invalid or missing plan." }, { status: 400 });
@@ -59,10 +62,12 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error("Stripe checkout error:", err?.message || err);
+    console.error("Stripe checkout error:", e?.raw?.message || e?.message || e);
     return NextResponse.json(
       { error: "Unable to start checkout. Please try again." },
       { status: 500 }
     );
   }
 }
+
+
